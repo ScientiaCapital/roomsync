@@ -1,0 +1,17 @@
+{
+  "cms": "epiphan",
+  "events": [
+    {
+      "id": "test-event-0001:1767225600",
+      "title": "Room 204 lecture",
+      "cms": "epiphan",
+      "status": "scheduled",
+      "confirmed": true,
+      "start": "2026-01-01T00:00:00Z",
+      "finish": "2026-01-01T00:50:00Z",
+      "devices": [
+        {"device_id": "TEST-DEVICE-0001", "channels": [{"channel_id": "1", "recording": true, "streaming": false}]}
+      ]
+    }
+  ]
+}

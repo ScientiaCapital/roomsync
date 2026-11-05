@@ -1,0 +1,44 @@
+[project]
+name = "roomsync"
+version = "0.0.1"
+description = "Keep a school's video-platform schedule, Epiphan room devices and backup recordings in agreement"
+readme = "README.md"
+license = "Apache-2.0"
+license-files = ["LICENSE", "NOTICE"]
+keywords = ["epiphan", "pearl", "ec20", "epiphan-edge", "panopto", "lecture-capture", "scheduling", "mcp"]
+classifiers = [
+    "Private :: Do Not Upload",
+    "License :: OSI Approved :: Apache Software License",
+    "Development Status :: 1 - Planning",
+    "Environment :: Console",
+    "Operating System :: MacOS",
+    "Operating System :: POSIX :: Linux",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+]
+authors = [{ name = "Tim Kipper", email = "tkipper@epiphan.com" }]
+requires-python = ">=3.12"
+dependencies = [
+    "httpx>=0.28.1",
+    "pydantic>=2.9",
+    "pydantic-settings>=2.16.0",
+]
+
+[project.scripts]
+roomsync = "roomsync.cli:main"
+
+[project.urls]
+Source = "https://github.com/ScientiaCapital/roomsync"
+Issues = "https://github.com/ScientiaCapital/roomsync/issues"
+
+[build-system]
+requires = ["uv_build>=0.9.26,<0.14.0"]
+build-backend = "uv_build"
+
+[dependency-groups]
+dev = ["pytest>=8", "ruff>=0.8"]
+
+[tool.ruff]
+line-length = 120
+target-version = "py312"

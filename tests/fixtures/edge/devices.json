@@ -1,0 +1,35 @@
+{
+  "devices": [
+    {
+      "Id": "TEST-DEVICE-0001",
+      "Name": "Room 204",
+      "Model": "Pearl-2",
+      "Status": "online",
+      "Channels": [
+        {
+          "channel_id": "1",
+          "name": "Program",
+          "recording_status": {"state": "stopped", "timestamp": "1767225600", "description": "recording is not started"}
+        }
+      ]
+    },
+    {
+      "Id": "TEST-DEVICE-0002",
+      "Name": "Room 205",
+      "Model": "Pearl Mini",
+      "Status": "online",
+      "Channels": [
+        {
+          "channel_id": "1",
+          "name": "Program",
+          "recording_status": {"state": "stopped", "timestamp": "1767225600", "description": "recording is not started"}
+        },
+        {
+          "channel_id": "2",
+          "name": "Camera",
+          "recording_status": {"state": "stopped", "timestamp": "1767225600", "description": "recording is not started"}
+        }
+      ]
+    }
+  ]
+}
