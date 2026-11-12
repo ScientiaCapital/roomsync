@@ -22,6 +22,7 @@ from typing import Any
 from pydantic import AwareDatetime, BaseModel, ConfigDict, model_validator
 
 from roomsync.models import ScheduledSession, Source
+from roomsync.terminal import safe_text
 
 KNOWN_EVENT_STATUSES: frozenset[str] = frozenset({"scheduled"})
 """Event statuses seen on a device. The kb does not list the full set."""
@@ -144,7 +145,10 @@ def _utc(value: datetime) -> str:
 
 
 def format_events(events: Sequence[EdgeEvent]) -> str:
-    """A plain table, one row per event and device, times in UTC. Unknown statuses are marked UNVERIFIED."""
+    """A plain table, one row per event and device, times in UTC. Unknown statuses are marked UNVERIFIED.
+
+    Text cells go through `safe_text`, so a control character in a title or id is printed as an escape.
+    """
     if not events:
         return "No Edge events in this file."
     header = ("start UTC", "finish UTC", "device", "cms", "status", "title")
@@ -152,10 +156,10 @@ def format_events(events: Sequence[EdgeEvent]) -> str:
         (
             _utc(e.start),
             _utc(e.finish),
-            device_id,
-            e.cms,
-            e.status if e.status_verified else f"{e.status} (UNVERIFIED status)",
-            e.title,
+            safe_text(device_id),
+            safe_text(e.cms),
+            safe_text(e.status) if e.status_verified else f"{safe_text(e.status)} (UNVERIFIED status)",
+            safe_text(e.title),
         )
         for e in events
         for device_id in (e.device_ids or ("-",))

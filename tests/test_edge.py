@@ -214,3 +214,19 @@ def test_format_events_converts_to_utc() -> None:
 
 def test_format_events_empty() -> None:
     assert format_events([]) == "No Edge events in this file."
+
+
+@pytest.mark.parametrize("bad", ["\x1b[2J", "\x1b]52;c;cm0gLXJmIH4=\x07", "\x07", "\x9b2J"])
+def test_format_events_escapes_control_characters(bad: str) -> None:
+    event = raw_event(title=f"Room 204 {bad}lecture")
+    out = format_events(parse_events({"events": [event]}))
+    assert bad not in out
+    assert "\x1b" not in out and "\x07" not in out and "\x9b" not in out
+    assert "Room 204 " in out and "lecture" in out
+
+
+def test_format_events_escapes_device_ids_and_status() -> None:
+    event = raw_event(status="running\x1b[2J", devices=[{"device_id": "TEST-DEVICE-0001\x07"}])
+    out = format_events(parse_events({"events": [event]}))
+    assert "\x1b" not in out and "\x07" not in out
+    assert "TEST-DEVICE-0001\\x07" in out

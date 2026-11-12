@@ -125,3 +125,33 @@ def test_edge_events_wrong_shape(tmp_path: Path, capsys: pytest.CaptureFixture[s
     devices_file = EDGE_FIXTURES / "devices.json"
     assert cli.main(["edge-events", "--from", str(devices_file)]) == 2
     assert "Not a known Edge events shape" in capsys.readouterr().err
+
+
+def hostile(request: httpx.Request) -> httpx.Response:
+    if request.url.path == TOKEN_PATH:
+        return httpx.Response(200, json={"access_token": FAKE_TOKEN})
+    if request.url.params["pageNumber"] != "0":
+        return httpx.Response(200, json={"Results": []})
+    row = {
+        "Id": "00000000-0000-0000-0000-000000000204\x1b[2J",
+        "Name": "Room 204 \x1b]52;c;cm0gLXJmIH4=\x07recorder",
+        "State": "Stopped\x07",
+    }
+    return httpx.Response(200, json={"Results": [row]})
+
+
+@pytest.mark.usefixtures("panopto_env")
+def test_recorders_escapes_control_characters(
+    monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    patch_transport(monkeypatch, hostile)
+    assert cli.main(["recorders", "--query", "Room"]) == 0
+    out = capsys.readouterr().out
+    assert "\x1b" not in out and "\x07" not in out
+    assert "000000000204\\x1b[2J" in out
+    assert "Room 204 \\x1b]52;c;cm0gLXJmIH4=\\x07recorder" in out
+
+
+def test_format_table_escapes_cells_before_measuring_widths() -> None:
+    lines = cli.format_table([["Id", "Name"], ["a\x07", "b"]])
+    assert lines == ["Id     Name", "a\\x07  b"]

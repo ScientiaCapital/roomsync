@@ -31,6 +31,7 @@ Problems in Epiphan products, Epiphan Edge, or the Epiphan MCP server go to the 
 | Secrets in commits | gitleaks in pre-commit and in CI | CI secrets scan |
 | The platform client secret is a `SecretStr`, the platform URL must be https, and a settings error names variables, never values | `src/roomsync/settings.py` | `tests/test_settings.py` |
 | A Panopto error names the call and HTTP status only, with no response body, token, or secret. roomsync doesn't follow redirects | `src/roomsync/platform/panopto.py` | `tests/test_panopto.py`, `tests/test_cli.py` |
+| Event titles, recorder names, ids and other text from the platform or a saved Edge file are printed with every C0, DEL and C1 control character shown as a `\xNN` escape, so escape sequences reach the terminal as plain text | `src/roomsync/terminal.py`, `edge.py`, `cli.py` | `tests/test_terminal.py`, `tests/test_edge.py`, `tests/test_cli.py` |
 | DEV, STAGING and the CRM connector are denied in this folder | `.claude/settings.json` | review |
 | Local context, schedules, reports and session logs never enter git | `.gitignore` | review, gitleaks |
 

@@ -10,6 +10,7 @@ from roomsync.edge import format_events, load_json, parse_events
 from roomsync.models import Recorder
 from roomsync.platform.panopto import PanoptoClient, PanoptoError
 from roomsync.settings import Settings, SettingsError, load_settings
+from roomsync.terminal import safe_text
 
 UNVERIFIED_AUTH = "UNVERIFIED: grant type and scope not confirmed for this site"
 
@@ -22,7 +23,8 @@ def make_client(settings: Settings) -> PanoptoClient:
 
 
 def format_table(rows: Sequence[Sequence[str]]) -> list[str]:
-    """Left-aligned columns separated by two spaces, header first."""
+    """Left-aligned columns separated by two spaces, header first. Control characters in a cell are escaped."""
+    rows = [[safe_text(cell) for cell in row] for row in rows]
     widths = [max(len(row[i]) for row in rows) for i in range(len(rows[0]))]
     return ["  ".join(cell.ljust(width) for cell, width in zip(row, widths, strict=True)).rstrip() for row in rows]
 
