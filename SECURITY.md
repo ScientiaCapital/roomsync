@@ -55,5 +55,9 @@ identical with the kit and fix problems there first.
   platform URL at another https host, so run roomsync from your own project folder.
 - roomsync keeps the Panopto access token for one command run and doesn't refresh it. A run that outlives the token
   fails with an error.
-  That doesn't keep a secret out of logs or error messages once the value is unwrapped, so that stays a review
-  item until a test covers it. This note goes when the client lands.
+- What is kept out of output: roomsync writes no log of its own. A Panopto error names the call and the HTTP status,
+  and the client's repr names the site only. Tests check that neither the client secret nor the token appears in
+  either, or in anything the `recorders` command prints.
+- What is not: the client secret and the token are `SecretStr` values, unwrapped only to build the token request
+  body and the search request's `Authorization` header. roomsync doesn't configure logging for httpx or for the
+  program that runs it, and no test covers what such a logger records about a request.
