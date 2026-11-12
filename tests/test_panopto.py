@@ -227,3 +227,28 @@ def test_injected_http_client_is_not_closed() -> None:
         return closed
 
     assert asyncio.run(go()) is False
+
+
+def test_own_http_client_does_not_follow_redirects(monkeypatch: pytest.MonkeyPatch) -> None:
+    seen: dict[str, object] = {}
+    requests: list[httpx.Request] = []
+    real_client = httpx.AsyncClient
+
+    def redirect(request: httpx.Request) -> httpx.Response:
+        requests.append(request)
+        return httpx.Response(302, headers={"Location": "https://elsewhere.example.com/collect"})
+
+    def make(**kwargs: object) -> httpx.AsyncClient:
+        seen.update(kwargs)
+        return real_client(transport=httpx.MockTransport(redirect), **kwargs)  # type: ignore[arg-type]
+
+    monkeypatch.setattr(httpx, "AsyncClient", make)
+
+    async def go() -> None:
+        async with PanoptoClient(settings()) as client:
+            await client.search_recorders("Room")
+
+    with pytest.raises(PanoptoError, match="returned HTTP 302"):
+        asyncio.run(go())
+    assert seen.get("follow_redirects") is False
+    assert [r.url.host for r in requests] == ["panopto.example.edu"]
