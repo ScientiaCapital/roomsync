@@ -58,7 +58,8 @@ class PanoptoClient:
         self._base = str(settings.panopto_base_url).rstrip("/") + "/Panopto"
         self._client_id = settings.panopto_client_id
         self._client_secret = settings.panopto_client_secret
-        self._http = http if http is not None else httpx.AsyncClient(timeout=30.0)
+        # Never follow a redirect, so every request goes only to the configured site. SECURITY.md relies on it.
+        self._http = http if http is not None else httpx.AsyncClient(timeout=30.0, follow_redirects=False)
         self._owns_http = http is None
         self._token: SecretStr | None = None
 

@@ -31,6 +31,7 @@ Problems in Epiphan products, Epiphan Edge, or the Epiphan MCP server go to the 
 | Secrets in commits | gitleaks in pre-commit and in CI | CI secrets scan |
 | The platform client secret is a `SecretStr`, the platform URL must be https, and a settings error names variables, never values | `src/roomsync/settings.py` | `tests/test_settings.py` |
 | A Panopto error names the call and HTTP status only, with no response body, token, or secret. roomsync doesn't follow redirects | `src/roomsync/platform/panopto.py` | `tests/test_panopto.py`, `tests/test_cli.py` |
+| Event titles, recorder names, ids and other text from the platform or a saved Edge file are printed with every C0, DEL and C1 control character shown as a `\xNN` escape, so escape sequences reach the terminal as plain text | `src/roomsync/terminal.py`, `edge.py`, `cli.py` | `tests/test_terminal.py`, `tests/test_edge.py`, `tests/test_cli.py` |
 | DEV, STAGING and the CRM connector are denied in this folder | `.claude/settings.json` | review |
 | Local context, schedules, reports and session logs never enter git | `.gitignore` | review, gitleaks |
 
@@ -54,5 +55,9 @@ identical with the kit and fix problems there first.
   platform URL at another https host, so run roomsync from your own project folder.
 - roomsync keeps the Panopto access token for one command run and doesn't refresh it. A run that outlives the token
   fails with an error.
-  That doesn't keep a secret out of logs or error messages once the value is unwrapped, so that stays a review
-  item until a test covers it. This note goes when the client lands.
+- What is kept out of output: roomsync writes no log of its own. A Panopto error names the call and the HTTP status,
+  and the client's repr names the site only. Tests check that neither the client secret nor the token appears in
+  either, or in anything the `recorders` command prints.
+- What is not: the client secret and the token are `SecretStr` values, unwrapped only to build the token request
+  body and the search request's `Authorization` header. roomsync doesn't configure logging for httpx or for the
+  program that runs it, and no test covers what such a logger records about a request.
